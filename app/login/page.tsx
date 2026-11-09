@@ -6,8 +6,12 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 function destination() {
-  const next = new URLSearchParams(window.location.search).get("next");
-  return next === "/study/ai" || next === "/study/no-ai" ? next : "/study/no-ai";
+  const params = new URLSearchParams(window.location.search);
+  const condition = params.get("condition");
+  if (condition === "ai" || condition === "no-ai") return `/${condition}`;
+  // Keep previously shared login links working; only allow known study paths.
+  const next = params.get("next");
+  return next === "/study/ai" || next === "/ai" ? "/ai" : "/no-ai";
 }
 
 export default function LoginPage() {

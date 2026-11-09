@@ -13,7 +13,7 @@ export function CalorieStudy({ condition, route }: { condition: Condition; route
   const request = useCallback(async (body?: object): Promise<CalorieStudyView> => {
     const response = await fetch(`/api/study/${route}`, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : { cache: "no-store" });
     if (response.status === 401) {
-      window.location.assign(`/login?next=${encodeURIComponent(`/study/${route}`)}`);
+      window.location.assign(`/login?condition=${route}`);
       throw new Error("Please sign in.");
     }
     const result = await response.json();
@@ -37,7 +37,7 @@ export function CalorieStudy({ condition, route }: { condition: Condition; route
       <div className="participant-menu"><span><small>Participant</small>{study?.participantId ?? "…"}</span>
         <button aria-label="Sign out" disabled={busy} onClick={async () => {
           const res = await fetch("/api/auth/logout", { method: "POST" });
-          if (res.ok) window.location.assign(`/login?next=${encodeURIComponent(`/study/${route}`)}`);
+          if (res.ok) window.location.assign(`/login?condition=${route}`);
           else setError("Sign out failed. Please try again.");
         }}><LogOut size={18}/></button></div>
     </header>

@@ -12,7 +12,7 @@ The implementation adds these focused pieces:
 
 - `components/calorie-study.tsx`: shared instructions, optional interactive practice, attention check, meal task, optional assistant, confidence rating, and completion components. Practice reuses the real meal controls with local state only; it never calls a study action or saves a response.
 - `public/practice-meal.svg`: a dedicated illustrated practice plate, separate from the study dataset. Practice assistant values are made-up and labeled as a demonstration; no correct answer is given.
-- `app/study/[condition]/page.tsx`: validates the two condition URLs.
+- `app/no-ai/page.tsx` and `app/ai/page.tsx`: concise study URLs; `app/study/[condition]/page.tsx` redirects older links to them.
 - `app/api/study/[condition]/route.ts`: authenticated GET and POST actions (`attention`, `start`, `consult`, `submit`).
 - `lib/calorie-config.ts`: `NUM_TRIALS`, conditions, and browser-safe view types.
 - `lib/calorie-validation.ts`: server input validation.
@@ -56,10 +56,10 @@ npm run dev
 
 Open:
 
-- No AI: `http://localhost:3000/study/no-ai`
-- Optional AI assistance: `http://localhost:3000/study/ai`
+- No AI: `http://localhost:3000/no-ai`
+- Optional AI assistance: `http://localhost:3000/ai`
 
-Each URL redirects signed-out participants to the shared login and preserves their condition after registration/sign-in. Use the same private username to resume. Each username has one persistent run per condition; refreshing or signing in again does not redraw the sample. Meals assigned in the participant’s other condition are excluded too. The researcher should distribute the intended condition link; there is no automatic randomized condition allocation.
+Each URL redirects signed-out participants to `/login?condition=no-ai` or `/login?condition=ai` and preserves their condition after registration/sign-in. Older `/study/no-ai`, `/study/ai`, and encoded `next` login links continue to work. Use the same private username to resume. Each username has one persistent run per condition; refreshing or signing in again does not redraw the sample. Meals assigned in the participant’s other condition are excluded too. The researcher should distribute the intended condition link; there is no automatic randomized condition allocation.
 
 For a production build:
 
@@ -141,10 +141,10 @@ The SQL regression test rolls back its test participants and responses. It exerc
 
 Manual checks after connecting your Supabase project:
 
-1. Open `/study/no-ai`, create a test username, review the three-step instructions, and try the optional practice input/confidence controls. Confirm practice completion and reset work, no study action is sent in Network, and you can continue without practicing. In `/study/ai`, also try the practice assistant panel. Continue to the attention check, choose a wrong answer, then retry correctly.
+1. Open `/no-ai`, create a test username, review the three-step instructions, and try the optional practice input/confidence controls. Confirm practice completion and reset work, no study action is sent in Network, and you can continue without practicing. In `/ai`, also try the practice assistant panel. Continue to the attention check, choose a wrong answer, then retry correctly.
 2. Confirm the meal loads, confidence has five choices, no assistant is visible, and empty/negative calories or missing confidence cannot submit.
 3. Complete all meals; confirm progress advances once per submission, no meal repeats, no correct answer appears, and completion only thanks the participant.
-4. Open `/study/ai`. Enter `600`, consult, verify total and ingredient calories/grams, change to `720`, choose confidence, and submit. Also try one trial consulting before entering calories and one without consulting.
+4. Open `/ai`. Enter `600`, consult, verify total and ingredient calories/grams, change to `720`, choose confidence, and submit. Also try one trial consulting before entering calories and one without consulting.
 5. Refresh during a trial and sign out/in; confirm the assigned meal and saved consultation remain. Rapidly click submit; confirm only one response is stored.
 6. Inspect `calorie_analysis_records`: the first consultation example must have initial `600`, final `720`, consultation true, and timestamps; consultation before entry must have null initial; unconsulted trials must have false/null consultation fields. Check confidence, duration, exact IDs, reference calories, and run completion time.
 7. Check browser Network responses: no ground truth or error columns; no predictions in no-AI or before consultation. Repeat both routes on a narrow/mobile viewport and confirm each image and all controls remain usable.
