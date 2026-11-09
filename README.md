@@ -10,7 +10,8 @@ Assignment 3 reuses `app/api/auth/*`, `lib/session.ts`, `lib/security.ts`, `lib/
 
 The implementation adds these focused pieces:
 
-- `components/calorie-study.tsx`: shared instructions, attention check, meal task, optional assistant, confidence rating, and completion components.
+- `components/calorie-study.tsx`: shared instructions, optional interactive practice, attention check, meal task, optional assistant, confidence rating, and completion components. Practice reuses the real meal controls with local state only; it never calls a study action or saves a response.
+- `public/practice-meal.svg`: a dedicated illustrated practice plate, separate from the study dataset. Practice assistant values are made-up and labeled as a demonstration; no correct answer is given.
 - `app/study/[condition]/page.tsx`: validates the two condition URLs.
 - `app/api/study/[condition]/route.ts`: authenticated GET and POST actions (`attention`, `start`, `consult`, `submit`).
 - `lib/calorie-config.ts`: `NUM_TRIALS`, conditions, and browser-safe view types.
@@ -140,7 +141,7 @@ The SQL regression test rolls back its test participants and responses. It exerc
 
 Manual checks after connecting your Supabase project:
 
-1. Open `/study/no-ai`, create a test username, review instructions, choose a wrong attention answer, then retry correctly.
+1. Open `/study/no-ai`, create a test username, review the three-step instructions, and try the optional practice input/confidence controls. Confirm practice completion and reset work, no study action is sent in Network, and you can continue without practicing. In `/study/ai`, also try the practice assistant panel. Continue to the attention check, choose a wrong answer, then retry correctly.
 2. Confirm the meal loads, confidence has five choices, no assistant is visible, and empty/negative calories or missing confidence cannot submit.
 3. Complete all meals; confirm progress advances once per submission, no meal repeats, no correct answer appears, and completion only thanks the participant.
 4. Open `/study/ai`. Enter `600`, consult, verify total and ingredient calories/grams, change to `720`, choose confidence, and submit. Also try one trial consulting before entering calories and one without consulting.

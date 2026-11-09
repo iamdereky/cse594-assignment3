@@ -22,7 +22,27 @@ describe.each(["no_ai", "ai"] as Condition[])("complete %s participant flow", co
       return { ok: true, status: 200, json: async () => structuredClone(state) };
     }));
     render(React.createElement(CalorieStudy, { condition, route: condition === "ai" ? "ai" : "no-ai" }));
+    const practiceImage = await screen.findByAltText("Illustrated practice meal with chicken, rice, and vegetables");
+    fireEvent.load(practiceImage);
+    const practiceInput = screen.getByLabelText("How many calories do you estimate are in this meal?");
+    await waitFor(() => expect(practiceInput).toBeEnabled());
+    fireEvent.change(practiceInput, { target: { value: "500" } });
+    if (condition === "ai") {
+      expect(screen.queryByRole("complementary", { name: "AI Assistant" })).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: "Consult AI Assistant" }));
+      expect(await screen.findByRole("complementary", { name: "AI Assistant" })).toHaveTextContent("620");
+    } else expect(screen.queryByText("Consult AI Assistant")).not.toBeInTheDocument();
+    const practiceSubmit = screen.getByRole("button", { name: "Submit practice estimate" });
+    expect(practiceSubmit).toBeDisabled();
+    fireEvent.click(screen.getByRole("radio", { name: "3" }));
+    fireEvent.click(practiceSubmit);
+    expect(await screen.findByText("Practice complete")).toBeInTheDocument();
+    expect(calls).toEqual([]); // Practice never starts a trial or saves any study data.
+    fireEvent.click(screen.getByRole("button", { name: "Try practice again" }));
+    expect(screen.getByLabelText("How many calories do you estimate are in this meal?")).toHaveValue(null);
+    expect(screen.queryByRole("complementary", { name: "AI Assistant" })).not.toBeInTheDocument();
     fireEvent.click(await screen.findByRole("button", { name: "Continue to attention check" }));
+    expect(screen.queryByText("Try a practice meal")).not.toBeInTheDocument();
     fireEvent.click(screen.getByLabelText("Protein")); fireEvent.click(screen.getByRole("button", { name: "Check answer and begin" }));
     expect(await screen.findByText(/Please review the instructions above/)).toBeInTheDocument();
     fireEvent.click(screen.getByLabelText("Calories", { exact: true })); fireEvent.click(screen.getByRole("button", { name: "Check answer and begin" }));

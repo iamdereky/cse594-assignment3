@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 540" role="img" aria-labelledby="title desc">
+  <title id="title">Illustrated practice meal</title>
+  <desc id="desc">An example plate with chicken, rice, and vegetables, created only for interface practice.</desc>
+  <rect width="640" height="540" rx="24" fill="#dce6d5"/>
+  <ellipse cx="320" cy="287" rx="242" ry="212" fill="#c5d1bd"/>
+  <ellipse cx="320" cy="270" rx="238" ry="210" fill="#fafbf7"/>
+  <ellipse cx="320" cy="270" rx="202" ry="176" fill="#eef1e8" stroke="#d5ddce" stroke-width="3"/>
+  <path d="M167 211c-9-60 53-107 108-93 37 10 59 50 40 88-19 39-112 64-148 5Z" fill="#f8edd3"/>
+  <g stroke="#ddd1b2" stroke-width="5" stroke-linecap="round">
+    <path d="m201 171 12 5m26-33 10 7m23 22 12-3m-54 35 12-3m-43 10 9 5m26-35 10 3m25 15 8 5m-13-62 8 4m-57-1 6 8m36 48 6 4"/>
+  </g>
+  <path d="M316 246c-9-35 33-101 82-112 40-8 87 42 74 81-10 31-33 68-66 76-36 8-80-10-90-45Z" fill="#c78546" stroke="#af6a36" stroke-width="4"/>
+  <g stroke="#8e542c" stroke-width="9" stroke-linecap="round"><path d="m359 185 52 47m-66-22 45 43m-14-83 51 45"/></g>
+  <g fill="#559653" stroke="#3e7c48" stroke-width="4">
+    <path d="m191 340 16-48 24 3 11 48Z" fill="#80b166"/>
+    <circle cx="192" cy="291" r="24"/><circle cx="219" cy="278" r="28"/><circle cx="245" cy="298" r="25"/>
+    <path d="m315 405 13-47 23 1 13 45Z" fill="#80b166"/>
+    <circle cx="319" cy="353" r="24"/><circle cx="345" cy="341" r="28"/><circle cx="370" cy="361" r="24"/>
+  </g>
+  <g fill="#e9974e" stroke="#cf7937" stroke-width="3"><ellipse cx="271" cy="356" rx="16" ry="27" transform="rotate(35 271 356)"/><ellipse cx="401" cy="327" rx="16" ry="27" transform="rotate(-27 401 327)"/><ellipse cx="269" cy="410" rx="16" ry="25" transform="rotate(-35 269 410)"/></g>
+  <text x="320" y="511" text-anchor="middle" fill="#53615a" font-family="system-ui, sans-serif" font-size="17">Illustration for practice only</text>
+</svg>

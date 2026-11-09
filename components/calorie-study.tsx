@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { CircleCheck, Utensils, LogOut } from "lucide-react";
+import { CircleCheck, LogOut } from "lucide-react";
+import Image from "next/image";
 import type { Assistant, CalorieStudyView, Condition, MealView } from "@/lib/calorie-config";
 
 export function CalorieStudy({ condition, route }: { condition: Condition; route: string }) {
@@ -32,7 +33,7 @@ export function CalorieStudy({ condition, route }: { condition: Condition; route
   }
   return <main className="study-shell">
     <header className="study-header calorie-header">
-      <span className="study-brand"><span className="brand-mark"><Utensils size={23}/></span>Calorie Lens</span>
+      <span className="study-brand"><span className="brand-mark"><Image src="/food.png" alt="" width={25} height={25}/></span>Calorie Lens</span>
       <div className="participant-menu"><span><small>Participant</small>{study?.participantId ?? "…"}</span>
         <button aria-label="Sign out" disabled={busy} onClick={async () => {
           const res = await fetch("/api/auth/logout", { method: "POST" });
@@ -44,7 +45,10 @@ export function CalorieStudy({ condition, route }: { condition: Condition; route
       {error && <div role="alert" className="form-error">{error} <button type="button" onClick={() => window.location.reload()}>Reload study</button></div>}
       {!study ? <p role="status">Loading your study…</p> : study.complete ? <StudyComplete participantId={study.participantId}/> : !study.attentionPassed ? <>
         <StudyInstructions condition={condition} total={study.total}/>
-        {!instructionsRead ? <button className="primary-button" onClick={() => setInstructionsRead(true)}>Continue to attention check</button> : <AttentionCheck busy={busy} onAnswer={async answer => {
+        {!instructionsRead ? <>
+          <PracticeTrial condition={condition}/>
+          <div className="start-panel"><div><span>Ready to begin?</span><h2>Continue to a quick attention check, then your meals.</h2></div><button className="primary-button" onClick={() => setInstructionsRead(true)}>Continue to attention check</button></div>
+        </> : <AttentionCheck busy={busy} onAnswer={async answer => {
           const result = await act({ action: "attention", answer });
           return result ? result.attentionPassed : null;
         }}/>}
@@ -60,6 +64,44 @@ export function StudyInstructions({ condition, total }: { condition: Condition; 
     {condition === "ai" && <p>You may choose to consult an AI assistant. The assistant will provide an estimated calorie total and a breakdown of the ingredients it believes are present. The AI may be incorrect, so use the information however you think is appropriate.</p>}
     <p>{condition === "ai" ? "Enter your final estimate" : "Enter your best estimate in calories"} and rate how confident you are in your answer.</p>
     <p>{condition === "ai" ? "Please do not use external resources." : "Please make your best estimate without using external resources."}</p>
+    <div className="instruction-steps calorie-steps">
+      <div><span>01</span><p><strong>Look at the whole meal</strong>Estimate the total calories for everything shown in the image.</p></div>
+      <div><span>02</span><p><strong>{condition === "ai" ? "Use the assistant if you choose" : "Enter your best estimate"}</strong>{condition === "ai" ? "Select Consult AI Assistant to reveal its estimate. You can revise your answer before submitting, or continue without consulting." : "Type a non-negative number in the calories field. There is no time limit."}</p></div>
+      <div><span>03</span><p><strong>Rate your confidence and submit</strong>Choose 1 (not at all confident) to 5 (very confident). You can edit your answer until you submit; submitted answers cannot be changed.</p></div>
+    </div>
+    <p>Work at your own pace. After all {total} meals, you will see a confirmation that your responses have been saved.</p>
+  </section>;
+}
+
+const practiceMeal: MealView = {
+  id: "practice", trialId: "practice", dishId: "practice", image: "/practice-meal.svg",
+  position: 1, startedAt: null, consultedAt: null, initialEstimate: null
+};
+const practiceAssistant: Assistant = {
+  total: 620,
+  ingredients: [{ name: "Chicken", grams: 120, kcal: 200 }, { name: "Rice", grams: 180, kcal: 235 },
+    { name: "Vegetables", grams: 100, kcal: 45 }, { name: "Oil or dressing", grams: 16, kcal: 140 }]
+};
+
+function PracticeTrial({ condition }: { condition: Condition }) {
+  const [meal, setMeal] = useState<MealView>(practiceMeal);
+  const [submitted, setSubmitted] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  return <section className="practice-section" aria-labelledby="practice-title">
+    <div className="section-heading"><div><span className="section-kicker">Get familiar with the interface</span><h2 id="practice-title">Try a practice meal</h2></div></div>
+    <p>This optional example uses an illustration, rather than a study meal. Try entering an estimate and selecting confidence{condition === "ai" ? ", and explore the AI panel if you wish" : ""}. Practice answers are not saved or counted toward your study meals.</p>
+    {condition === "ai" && <p>The practice assistant uses made-up values to demonstrate the panel. They are not a correct answer or a guide for estimating other meals.</p>}
+    {submitted ? <div className="calorie-card" role="status"><h3>Practice complete</h3><p>That is how you submit a meal estimate. Your practice answer was not recorded. The study will not show a correct answer after submission.</p><button className="secondary-button" onClick={() => { setMeal(practiceMeal); setSubmitted(false); setAttempt(n => n + 1); }}>Try practice again</button></div> :
+      <MealTrial key={attempt} meal={meal} total={1} condition={condition} busy={false} practice onAction={async body => {
+        const action = body as { action: string; estimate?: number | null };
+        if (action.action === "start") setMeal(current => ({ ...current, startedAt: current.startedAt ?? new Date().toISOString() }));
+        if (action.action === "consult") setMeal(current => current.assistant ? current : {
+          ...current, assistant: practiceAssistant, consultedAt: new Date().toISOString(), initialEstimate: action.estimate ?? null
+        });
+        if (action.action === "submit") setSubmitted(true);
+        return undefined;
+      }}/>
+    }
   </section>;
 }
 export function AttentionCheck({ busy, onAnswer }: { busy: boolean; onAnswer: (answer: string) => Promise<boolean | null> }) {
@@ -77,8 +119,9 @@ export function AttentionCheck({ busy, onAnswer }: { busy: boolean; onAnswer: (a
 function parseEstimate(value: string) {
   return value.trim() !== "" && Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : null;
 }
-export function MealTrial({ meal, total, condition, busy, onAction }: {
+export function MealTrial({ meal, total, condition, busy, onAction, practice = false }: {
   meal: MealView; total: number; condition: Condition; busy: boolean;
+  practice?: boolean;
   onAction: (body: object) => Promise<CalorieStudyView | undefined>;
 }) {
   const [estimate, setEstimate] = useState(meal.initialEstimate?.toString() ?? "");
@@ -96,13 +139,13 @@ export function MealTrial({ meal, total, condition, busy, onAction }: {
     await onAction({ action: "submit", responseId: meal.id, estimate: value, confidence });
   }
   return <section aria-labelledby="meal-title">
-    <div className="task-topline"><div><span className="section-kicker">Your task</span><h1 id="meal-title">Meal {meal.position} of {total}</h1></div><span>{meal.position - 1} completed</span></div>
-    <progress className="meal-progress" value={meal.position - 1} max={total} aria-label="Study progress"/>
+    <div className="task-topline"><div><span className="section-kicker">{practice ? "Interface preview · not recorded" : "Your task"}</span>{practice ? <h3 id="meal-title">Practice meal</h3> : <h1 id="meal-title">Meal {meal.position} of {total}</h1>}</div>{!practice && <span>{meal.position - 1} completed</span>}</div>
+    {!practice && <progress className="meal-progress" value={meal.position - 1} max={total} aria-label="Study progress"/>}
     <div className="label-workspace meal-workspace">
       <div className="meal-photo">
         {/* Native image keeps image-ready timing explicit and avoids deferred loading. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={meal.image} alt={`Meal to estimate, trial ${meal.position}`} onLoad={() => void start()} onError={() => setImageFailed(true)}/>
+        <img src={meal.image} alt={practice ? "Illustrated practice meal with chicken, rice, and vegetables" : `Meal to estimate, trial ${meal.position}`} onLoad={() => void start()} onError={() => setImageFailed(true)}/>
         {imageFailed && <p role="alert">The meal image could not load. Please reload before answering.</p>}
       </div>
       <form className="label-fieldset auth-form" onSubmit={submit}>
@@ -114,7 +157,7 @@ export function MealTrial({ meal, total, condition, busy, onAction }: {
         </>}
         <ConfidenceRating value={confidence} onChange={setConfidence} disabled={busy || !loaded || imageFailed}/>
         {loaded && !meal.startedAt && <button type="button" disabled={busy} onClick={() => void start()}>Retry starting trial</button>}
-        <button className="primary-button" disabled={busy || !loaded || !meal.startedAt || imageFailed || parseEstimate(estimate) === null || confidence === null}>{busy ? "Saving…" : meal.position === total ? "Submit final estimate" : "Submit and next meal"}</button>
+        <button className="primary-button" disabled={busy || !loaded || !meal.startedAt || imageFailed || parseEstimate(estimate) === null || confidence === null}>{busy ? "Saving…" : practice ? "Submit practice estimate" : meal.position === total ? "Submit final estimate" : "Submit and next meal"}</button>
       </form>
     </div>
   </section>;

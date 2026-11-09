@@ -125,7 +125,7 @@ export function StudyApp({ initialTab = "task" }: { initialTab?: Tab }) {
     <main className="study-shell">
       <header className="study-header">
         <a className="study-brand" href="/task" aria-label="Emotion Examiner task">
-          <span className="brand-mark"><Image src="/emotion-examiner-icon.png" alt="" width={23} height={23} /></span>
+          <span className="brand-mark"><Image src="../public/food.png" alt="" width={23} height={23} /></span>
           <span>Emotion Examiner</span>
         </a>
         <nav className="study-nav" aria-label="Study navigation">
@@ -165,7 +165,7 @@ export function StudyApp({ initialTab = "task" }: { initialTab?: Tab }) {
 }
 
 function LoadingScreen() {
-  return <main className="loading-screen"><span className="brand-mark"><Image src="/emotion-examiner-icon.png" alt="" width={24} height={24} /></span><LoaderCircle className="spin" size={26} /><p>Loading your study…</p></main>;
+  return <main className="loading-screen"><span className="brand-mark"><Image src="/../public/food.png" alt="" width={24} height={24} /></span><LoaderCircle className="spin" size={26} /><p>Loading your study…</p></main>;
 }
 
 function Instructions({ onStart, busy }: { onStart: () => void; busy: boolean }) {

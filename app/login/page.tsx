@@ -57,7 +57,7 @@ export default function LoginPage() {
     <main className="auth-shell">
       <section className="auth-context" aria-labelledby="study-title">
         <span className="wordmark" aria-label="Calorie Lens">
-          <span className="wordmark-mark"><Image src="/emotion-examiner-icon.png" alt="" width={25} height={25} priority /></span>
+          <span className="wordmark-mark"><Image src="/food.png" alt="" width={25} height={25} priority /></span>
           <span>Calorie Lens</span>
         </span>
 
@@ -73,7 +73,7 @@ export default function LoginPage() {
         <div className="study-facts" aria-label="Study details">
           <div><strong>Meals</strong><span>Calorie estimates</span></div>
           <div><strong>1–5</strong><span>Confidence</span></div>
-          <div><strong>You</strong><span>Set the pace</span></div>
+          <div><strong>5-10</strong><span>Minutes</span></div>
         </div>
       </section>
 
