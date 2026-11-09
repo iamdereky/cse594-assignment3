@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function HomePage() { return <main className="study-content calorie-instructions"><span className="section-kicker">Calorie Lens</span><h1>Meal calorie estimation study</h1><p>Open the condition assigned by your researcher.</p><p><Link className="primary-button" href="/study/no-ai">No AI study</Link></p><p><Link className="secondary-button" href="/study/ai">AI assistance study</Link></p></main>; }
